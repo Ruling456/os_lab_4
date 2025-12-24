@@ -1,34 +1,35 @@
-# Makefile
+
+#-------------
+# make
+# make run
+#
+#--------------
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -I./include
 LDFLAGS = -ldl
 TARGET = calculator
 
-# Исходные файлы
-SRCS = main2.c
-OBJS = $(SRCS:.c=.o)
+all: $(TARGET) func_4_n.so func_4_e.so func_5_i.so func_5_w.so
 
-# Цели по умолчанию
-all: $(TARGET)
+$(TARGET): src/main2.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
-# Сборка основной программы
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+func_4_n.so: src/func_4_n.c include/func4.h
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $<
 
-# Компиляция объектных файлов
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+func_4_e.so: src/func_4_e.c include/func4.h
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $<
 
-# Запуск программы
-run: $(TARGET)
+func_5_i.so: src/func_5_i.c include/func5.h
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $<
+
+func_5_w.so: src/func_5_w.c include/func5.h
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $<
+
+run: all
 	LD_LIBRARY_PATH=. ./$(TARGET)
 
-# Очистка
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET) *.so
 
-# Запуск с отладкой
-debug: $(TARGET)
-	LD_DEBUG=libs LD_LIBRARY_PATH=. ./$(TARGET) 2>&1 | grep -E "loading|init"
-
-.PHONY: all run clean debug
+.PHONY: all run clean
